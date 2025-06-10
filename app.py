@@ -281,7 +281,12 @@ if __name__ == '__main__':
     print("   - Tech Jump Game integrated modal")
     print("   - Snake Game integrated modal")
     print("\n🗺️ Free OpenStreetMap integration - No API key required!")
-    print("🌿 Ecological Observation System: http://127.0.0.1:5000/observations")
-    print("🏠 Home with Features & Games: http://127.0.0.1:5000/")
+    print("🌿 Ecological Observation System: /observations")
+    print("🏠 Home with Features & Games: /")
     print("\n" + "="*70 + "\n")
-    app.run(debug=True)
+    
+    # Railway 배포용 설정
+    import os
+    port = int(os.environ.get('PORT', 5000))
+    debug_mode = os.environ.get('RAILWAY_ENVIRONMENT') != 'production'
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)
