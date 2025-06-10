@@ -1,0 +1,173 @@
+/* observations/responsive.css - Simplified responsive design */
+
+/* Large screens */
+@media (min-width: 1401px) {
+    :root {
+        --container-padding: 4%;
+    }
+}
+
+/* Desktop */
+@media (max-width: 1200px) {
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .stat-card {
+        padding: 2rem 1.5rem;
+    }
+}
+
+/* Tablet */
+@media (max-width: 992px) {
+    :root {
+        --container-padding: 4%;
+        --section-spacing: 4rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .stat-card {
+        padding: 2rem 1.5rem;
+    }
+    
+    .gallery-view {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    :root {
+        --container-padding: 3%;
+        --section-spacing: 3rem;
+    }
+    
+    .modern-header {
+        padding: 1.5rem 0;
+    }
+    
+    .modern-nav {
+        gap: 1.5rem;
+    }
+    
+    .modern-nav a {
+        font-size: 0.85rem;
+    }
+    
+    /* Hide stats section on mobile */
+    .stats-section {
+        display: none;
+    }
+    
+    .map-container {
+        height: 50vh;
+        min-height: 400px;
+    }
+    
+    .map-ui {
+        top: 10px;
+        right: 10px;
+        max-width: 150px;
+    }
+    
+    .map-controls,
+    .map-legend {
+        padding: 15px;
+    }
+    
+    .control-btn {
+        padding: 10px 12px;
+        font-size: 12px;
+        min-width: 120px;
+    }
+    
+    .legend-item {
+        font-size: 11px;
+    }
+    
+    .gallery-view {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .filter-controls {
+        flex-direction: column;
+    }
+    
+    .filter-controls input {
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .observation-card {
+        padding: 1.5rem;
+    }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+    :root {
+        --container-padding: 4%;
+        --section-spacing: 2rem;
+    }
+    
+    .modern-nav {
+        display: none;
+    }
+    
+    .header-inner {
+        justify-content: center;
+    }
+    
+    .map-container {
+        height: 45vh;
+        min-height: 350px;
+    }
+    
+    .map-ui {
+        top: 10px;
+        right: 5px;
+        max-width: 130px;
+    }
+    
+    .control-btn {
+        padding: 8px 10px;
+        font-size: 11px;
+        min-width: 100px;
+    }
+    
+    .legend-item {
+        font-size: 10px;
+    }
+    
+    .observation-card {
+        padding: 1rem;
+    }
+    
+    .observation-card h3 {
+        font-size: 1.2rem;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .delete-btn {
+        align-self: flex-end;
+    }
+    
+    .filter-section {
+        padding: 1.5rem;
+    }
+    
+    .empty-state {
+        padding: 2rem 1rem;
+    }
+}

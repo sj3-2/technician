@@ -1,0 +1,827 @@
+<!-- templates/observations_list.html - Rewritten with simplified layout -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title if title else "생태 관찰 기록" }} - Technician Club</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Load CSS files in organized order -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/observations/layout.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/observations/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/observations/forms.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/observations/responsive.css') }}">
+</head>
+<body>
+    <!-- Header with same structure as home page -->
+    <header class="modern-header">
+        <a href="{{ url_for('home') }}" class="logo">TECHNICIAN</a>
+        <nav class="modern-nav">
+            <a href="{{ url_for('list_observations') }}">관찰 기록</a>
+            <a href="{{ url_for('home') }}#team1-project">프로젝트</a>
+            <a href="{{ url_for('home') }}#about-club">소개</a>
+        </nav>
+    </header>
+
+    <!-- Main content with working container -->
+    <div class="main-container">
+        <div class="layout-container">
+            
+            <!-- Map section -->
+            <section class="map-section">
+                <div class="map-container">
+                    <div id="map" class="main-map"></div>
+                    <div class="map-ui">
+                        <div class="map-controls">
+                            <button id="homeBtn" class="control-btn">🏠 홈</button>
+                            <button id="addModeBtn" class="control-btn">➕ 관찰 추가</button>
+                            <button id="listModeBtn" class="control-btn">📋 목록 보기</button>
+                            <button id="mapTypeBtn" class="control-btn">🛰️ 위성지도</button>
+                            <button id="centerMapBtn" class="control-btn">📍 중심으로</button>
+                        </div>
+                        <div class="map-legend">
+                            <div class="legend-item">🟢 최근 (7일 이내)</div>
+                            <div class="legend-item">🟡 이번 달</div>
+                            <div class="legend-item">🔴 오래된 관찰</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Content sections -->
+            <div id="contentContainer">
+                
+                <!-- Stats section (hidden on mobile) -->
+                
+                {% if observations %}
+                <section class="stats-section content-section">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="stat-number">{{ observations|length }}</span>
+                            <span class="stat-label">총 관찰 기록</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number">{{ observations|selectattr('photo_url')|list|length }}</span>
+                            <span class="stat-label">사진 포함</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number">{{ (observations|map(attribute='species_name')|list|unique|list)|length }}</span>
+                            <span class="stat-label">고유 종</span>
+                        </div>
+                    </div>
+                </section>
+                {% endif %}
+
+                {% if observations %}
+                    <!-- Filter section -->
+                    <section class="filter-section content-section">
+                        <h4>🔍 검색 & 필터</h4>
+                        <div class="filter-controls">
+                            <input type="text" id="searchInput" placeholder="종 이름으로 검색..." onkeyup="filterObservations()">
+                            <input type="date" id="dateFilter" onchange="filterObservations()">
+                        </div>
+                    </section>
+
+                    <!-- Observations gallery -->  
+                    <section class="content-section">
+                        <div id="observationsContainer" class="gallery-view">
+                            {% for obs in observations %}
+                                <div class="observation-card" data-species="{{ obs.species_name|lower }}" data-date="{{ obs.created_at.strftime('%Y-%m-%d') if obs.created_at else '' }}" data-observation-id="{{ obs.id }}">
+                                    <div class="card-header">
+                                        <h3>{{ obs.species_name }}</h3>
+                                        <!-- [MODIFIED] 삭제 버튼 기본 숨김, JS로 표시 여부 결정 -->
+                                        <button class="delete-btn" onclick="deleteObservation({{ obs.id }})" style="display: none;">🗑️</button>
+                                    </div>
+                                    
+                                    {% if obs.description %}
+                                        <p><strong>설명:</strong> {{ obs.description }}</p>
+                                    {% endif %}
+                                    
+                                    <!-- Only show creation time, remove redundant observation time -->
+                                    <p><strong>기록 시간:</strong> {{ obs.created_at.strftime('%Y-%m-%d %H:%M:%S') if obs.created_at else 'N/A' }}</p>
+                                    
+                                    {% if obs.latitude and obs.longitude %}
+                                        <p><strong>위치:</strong> {{ "%.6f"|format(obs.latitude|float) }}, {{ "%.6f"|format(obs.longitude|float) }}</p>
+                                    {% endif %}
+                                    
+                                    {% if obs.photo_url %}
+                                        <div class="photo-container">
+                                            <img src="{{ obs.photo_url }}" alt="{{ obs.species_name }} 관찰 사진" loading="lazy">
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="observation-meta">
+                                        ID: {{ obs.id }} | {{ obs.created_at.strftime('%Y년 %m월 %d일') if obs.created_at else '날짜 없음' }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- List view - file explorer style -->
+                        <div id="observationsList" class="list-view">
+                            <div class="list-header">
+                                <div>이미지</div>
+                                <div>종 이름</div>
+                                <div>기록 시간</div>
+                                <div>작업</div>
+                            </div>
+                            {% for obs in observations %}
+                                <div class="list-item" data-species="{{ obs.species_name|lower }}" data-date="{{ obs.created_at.strftime('%Y-%m-%d') if obs.created_at else '' }}" data-observation-id="{{ obs.id }}" onclick="showObservationDetail({{ obs.id }})">
+                                    <div class="list-thumbnail">
+                                        {% if obs.photo_url %}
+                                            <img src="{{ obs.photo_url }}" alt="{{ obs.species_name }}">
+                                        {% else %}
+                                            🌿
+                                        {% endif %}
+                                    </div>
+                                    <div class="list-species">{{ obs.species_name }}</div>
+                                    <div class="list-date">{{ obs.created_at.strftime('%Y-%m-%d %H:%M') if obs.created_at else 'N/A' }}</div>
+                                    <div class="list-actions">
+                                        <button class="list-action-btn" onclick="event.stopPropagation(); showObservationDetail({{ obs.id }})">보기</button>
+                                        <!-- [MODIFIED] 삭제 버튼 기본 숨김, JS로 표시 여부 결정 -->
+                                        <button class="list-action-btn delete" onclick="event.stopPropagation(); deleteObservation({{ obs.id }})" style="display: none;">삭제</button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </section>
+                {% else %}
+                    <!-- Empty state -->
+                    <section class="content-section">
+                        <div class="empty-state">
+                            <h3>🌱 아직 관찰 기록이 없습니다</h3>
+                            <p>우리 학교 주변의 놀라운 생물 다양성을 기록해보세요!</p>
+                            <p>모든 관찰이 지역 생태계 이해에 도움이 됩니다.</p>
+                            <button onclick="toggleAddMode()" class="primary-btn">첫 관찰 기록하기</button>
+                        </div>
+                    </section>
+                {% endif %}
+                
+            </div>
+        </div>
+    </main>
+
+    <!-- Detail Modal for List View -->
+    <div id="detailModal" class="detail-modal" style="display: none;">
+        <div class="detail-content">
+            <div class="detail-header">
+                <h2 id="detailTitle">Species Name</h2>
+                <button class="detail-close" onclick="closeDetailModal()">×</button>
+            </div>
+            <div class="detail-body">
+                <div class="detail-image">
+                    <img id="detailImage" src="" alt="" style="display: none;">
+                    <div id="detailNoImage" class="no-image" style="display: none;">🌿</div>
+                </div>
+                <div class="detail-info">
+                    <div class="detail-field">
+                        <span class="detail-label">종 이름</span>
+                        <div class="detail-value" id="detailSpecies"></div>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-label">설명</span>
+                        <div class="detail-value" id="detailDescription">설명 없음</div>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-label">기록 시간</span>
+                        <div class="detail-value" id="detailCreated"></div>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-label">위치</span>
+                        <div class="detail-value" id="detailLocation">위치 정보 없음</div>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-label">관찰 ID</span>
+                        <div class="detail-value" id="detailId"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-actions">
+                <button class="secondary-btn" onclick="closeDetailModal()">닫기</button>
+                <!-- [MODIFIED] 삭제 버튼에 ID 추가 및 기본 숨김 -->
+                <button id="detailModalDeleteBtn" class="primary-btn" onclick="deleteObservationFromDetail()" style="background: #ff6b6b; display: none;">삭제</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Observation Modal -->
+    <div id="addModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>새 관찰 기록 추가</h3>
+                <button class="close-btn" onclick="closeAddModal()">×</button>
+            </div>
+            <form id="addObservationForm" class="modal-form">
+                <div class="form-group">
+                    <label for="modalSpeciesName">종 이름</label>
+                    <input type="text" id="modalSpeciesName" name="species_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="modalDescription">설명</label>
+                    <textarea id="modalDescription" name="description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="modalPhoto">사진</label>
+                    <input type="file" id="modalPhoto" name="photo" accept="image/*">
+                    <canvas id="imageCanvas" style="display: none;"></canvas>
+                </div>
+                <div class="form-group">
+                    <label>위치</label>
+                    <div class="location-display">
+                        <input type="hidden" id="modalLatitude" name="latitude">
+                        <input type="hidden" id="modalLongitude" name="longitude">
+                        <span id="locationText">지도에서 위치를 클릭하세요</span>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="closeAddModal()" class="secondary-btn">취소</button>
+                    <button type="submit" class="primary-btn">기록 추가</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="modern-footer">
+        <div class="layout-container">
+            <div class="footer-content">
+                <div class="footer-logo">TECHNICIAN</div>
+                <div class="footer-links">
+                    <a href="{{ url_for('home') }}">홈</a>
+                    <a href="{{ url_for('list_observations') }}">관찰 기록</a>
+                    <a href="{{ url_for('home') }}#about-club">소개</a>
+                    <a href="{{ url_for('home') }}#team1-project">프로젝트</a>
+                </div>
+                <div class="footer-copyright">
+                    © 2025 Technician Club. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    
+    <script>
+        let map;
+        let observations = [];
+        let markers = [];
+        let isAddMode = false;
+        let selectedPosition = null;
+        let currentMapType = 'satellite';
+        let currentBaseLayer;
+        let tempMarker = null;
+        let currentViewMode = 'gallery';
+        let currentDetailObservation = null;
+
+        const SCHOOL_CENTER = { lat: 37.480687479748056, lng: 126.69632549771116 };
+        const DEFAULT_ZOOM = 18;
+        
+        function getUserId() {
+            let userId = localStorage.getItem('technician_user_id');
+            if (!userId) {
+                userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('technician_user_id', userId);
+            }
+            return userId;
+        }
+        
+        const CURRENT_USER_ID = getUserId();
+        
+        function compressImage(file, maxWidth = 1200, quality = 0.8) {
+            return new Promise((resolve) => {
+                const canvas = document.getElementById('imageCanvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                
+                img.onload = function() {
+                    let { width, height } = img;
+                    
+                    if (width > maxWidth) {
+                        height = (height * maxWidth) / width;
+                        width = maxWidth;
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    canvas.toBlob(resolve, 'image/jpeg', quality);
+                };
+                
+                img.src = URL.createObjectURL(file);
+            });
+        }
+        
+        function initializeMap() {
+            try {
+                map = L.map('map', {
+                    attributionControl: false
+                }).setView([SCHOOL_CENTER.lat, SCHOOL_CENTER.lng], DEFAULT_ZOOM);
+                
+                const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap contributors'
+                });
+                
+                const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    maxZoom: 19,
+                    attribution: '© Esri, Maxar, GeoEye'
+                });
+                
+                const altSatelliteLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+                    maxZoom: 20,
+                    attribution: '© Google'
+                });
+                
+                window.mapLayers = {
+                    standard: osmLayer,
+                    satellite: satelliteLayer,
+                    altSatellite: altSatelliteLayer
+                };
+                
+                currentBaseLayer = satelliteLayer;
+                satelliteLayer.addTo(map);
+                
+                satelliteLayer.on('tileerror', function(error) {
+                    console.warn('Satellite tile loading error, switching to alternative...');
+                    if (currentMapType === 'satellite') {
+                        map.removeLayer(satelliteLayer);
+                        altSatelliteLayer.addTo(map);
+                        currentBaseLayer = altSatelliteLayer;
+                    }
+                });
+                
+                map.on('click', function(e) {
+                    if (isAddMode) {
+                        const latlng = e.latlng;
+                        selectedPosition = { lat: latlng.lat, lng: latlng.lng };
+                        
+                        if (tempMarker) {
+                            map.removeLayer(tempMarker);
+                        }
+                        
+                        const zoom = map.getZoom();
+                        const radius = Math.max(4, Math.min(12, zoom - 10));
+                        
+                        tempMarker = L.circleMarker([latlng.lat, latlng.lng], {
+                            radius: radius,
+                            fillColor: '#ff4444',
+                            color: '#ff0000',
+                            weight: 2,
+                            opacity: 1,
+                            fillOpacity: 0.8
+                        }).addTo(map);
+                        
+                        document.getElementById('modalLatitude').value = selectedPosition.lat;
+                        document.getElementById('modalLongitude').value = selectedPosition.lng;
+                        document.getElementById('locationText').textContent = 
+                            `위도: ${selectedPosition.lat.toFixed(6)}, 경도: ${selectedPosition.lng.toFixed(6)}`;
+                        
+                        showAddModal();
+                    }
+                });
+                
+                map.on('zoomend', function() {
+                    updateMarkerSizes();
+                });
+                
+                loadObservations();
+                
+            } catch (error) {
+                console.error('지도 초기화 오류:', error);
+                showMapError('지도 초기화 실패: ' + error.message);
+            }
+        }
+        
+        function updateMarkerSizes() {
+            const zoom = map.getZoom();
+            const radius = Math.max(2, Math.min(8, zoom - 13));
+            
+            markers.forEach(marker => {
+                if (marker.setRadius) {
+                    marker.setRadius(radius);
+                }
+            });
+            
+            if (tempMarker && tempMarker.setRadius) {
+                tempMarker.setRadius(Math.max(4, Math.min(12, zoom - 10)));
+            }
+        }
+        
+        function showMapError(message) {
+            document.getElementById('map').innerHTML = 
+                '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: white; text-align: center; padding: 20px; background-color: rgba(0,0,0,0.9); border-radius: 8px;">' +
+                '<div>' +
+                '<h3 style="color: #ff6b6b;">🗺️ 지도 로딩 실패</h3>' +
+                '<p style="color: #ff6b6b;">' + message + '</p>' +
+                '<button onclick="location.reload()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">페이지 새로고침</button>' +
+                '</div>' +
+                '</div>';
+        }
+        
+        function loadObservations() {
+            fetch('/api/observations')
+                .then(response => response.json())
+                .then(data => {
+                    observations = data;
+                    displayMarkers();
+                })
+                .catch(error => console.error('관찰 데이터 로딩 오류:', error));
+        }
+        
+        function displayMarkers() {
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+            
+            const zoom = map.getZoom();
+            const baseRadius = Math.max(2, Math.min(8, zoom - 13));
+            
+            observations.forEach(obs => {
+                if (obs.latitude && obs.longitude) {
+                    const createdDate = new Date(obs.created_at);
+                    const now = new Date();
+                    const daysDiff = (now - createdDate) / (1000 * 60 * 60 * 24);
+                    
+                    let markerColor = '#ff4444';
+                    if (daysDiff < 7) {
+                        markerColor = '#44ff44';
+                    } else if (daysDiff < 30) {
+                        markerColor = '#ffaa44';
+                    }
+                    
+                    const marker = L.circleMarker([obs.latitude, obs.longitude], {
+                        radius: baseRadius,
+                        fillColor: markerColor,
+                        color: markerColor,
+                        weight: 1,
+                        opacity: 0.9,
+                        fillOpacity: 0.7
+                    }).addTo(map);
+                    
+                    const popupContent = `
+                        <div style="min-width: 200px;">
+                            <h4 style="margin: 0 0 8px 0;">${obs.species_name}</h4>
+                            ${obs.description ? `<p style="margin: 4px 0;"><strong>설명:</strong> ${obs.description}</p>` : ''}
+                            ${obs.photo_url ? `<img src="${obs.photo_url}" style="max-width: 180px; max-height: 120px; border-radius: 4px; margin: 8px 0;">` : ''}
+                            <p style="margin: 4px 0; font-size: 12px; opacity: 0.7;">기록: ${obs.created_at}</p>
+                            <div style="margin-top: 8px;">
+                                <button onclick="scrollToCard(${obs.id})" style="padding: 4px 8px; background: white; color: black; border: none; border-radius: 3px; margin-right: 4px; cursor: pointer;">상세보기</button>
+                                <button onclick="deleteObservation(${obs.id})" style="padding: 4px 8px; background: #ff4444; color: white; border: none; border-radius: 3px; cursor: pointer;">삭제</button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    marker.bindPopup(popupContent);
+                    markers.push(marker);
+                }
+            });
+        }
+        
+        function toggleMapType() {
+            const mapTypeBtn = document.getElementById('mapTypeBtn');
+            
+            if (currentMapType === 'satellite') {
+                map.removeLayer(currentBaseLayer);
+                currentBaseLayer = window.mapLayers.standard;
+                map.addLayer(currentBaseLayer);
+                currentMapType = 'standard';
+                mapTypeBtn.textContent = '🛰️ 위성지도';
+            } else {
+                map.removeLayer(currentBaseLayer);
+                currentBaseLayer = window.mapLayers.satellite;
+                map.addLayer(currentBaseLayer);
+                currentMapType = 'satellite';
+                mapTypeBtn.textContent = '🗺️ 일반지도';
+            }
+        }
+        
+        function toggleAddMode() {
+            isAddMode = !isAddMode;
+            const addBtn = document.getElementById('addModeBtn');
+            
+            if (isAddMode) {
+                addBtn.textContent = '✖️ 취소';
+                addBtn.style.backgroundColor = 'rgba(255, 68, 68, 0.2)';
+                addBtn.style.borderColor = '#ff4444';
+                map.getContainer().style.cursor = 'crosshair';
+            } else {
+                addBtn.textContent = '➕ 관찰 추가';
+                addBtn.style.backgroundColor = '';
+                addBtn.style.borderColor = '';
+                map.getContainer().style.cursor = '';
+                selectedPosition = null;
+                if (tempMarker) {
+                    map.removeLayer(tempMarker);
+                    tempMarker = null;
+                }
+            }
+        }
+        
+        function showAddModal() {
+            document.getElementById('addModal').style.display = 'flex';
+        }
+        
+        function closeAddModal() {
+            document.getElementById('addModal').style.display = 'none';
+            selectedPosition = null;
+            document.getElementById('addObservationForm').reset();
+            document.getElementById('locationText').textContent = '지도에서 위치를 클릭하세요';
+            if (tempMarker) {
+                map.removeLayer(tempMarker);
+                tempMarker = null;
+            }
+        }
+        
+        function toggleContentView() {
+            const galleryView = document.getElementById('observationsContainer');
+            const listView = document.getElementById('observationsList');
+            const listBtn = document.getElementById('listModeBtn');
+            
+            if (currentViewMode === 'gallery') {
+                galleryView.style.display = 'none';
+                listView.style.display = 'block';
+                listBtn.textContent = '📋 갤러리 보기';
+                currentViewMode = 'list';
+            } else {
+                galleryView.style.display = 'grid';
+                listView.style.display = 'none';
+                listBtn.textContent = '📋 목록 보기';
+                currentViewMode = 'gallery';
+            }
+        }
+        
+        function updateUserSpecificDeleteButtons() {
+            const currentUserId = CURRENT_USER_ID;
+
+            document.querySelectorAll('.observation-card').forEach(card => {
+                const obsId = card.dataset.observationId;
+                const deleteBtn = card.querySelector('.delete-btn');
+                if (deleteBtn) {
+                    const observationCreatorId = localStorage.getItem(`obs_${obsId}_creator`);
+                    if (observationCreatorId && observationCreatorId === currentUserId) {
+                        deleteBtn.style.display = 'inline-block';
+                    } else {
+                        deleteBtn.style.display = 'none';
+                    }
+                }
+            });
+
+            document.querySelectorAll('.list-item').forEach(item => {
+                const obsId = item.dataset.observationId;
+                const deleteBtn = item.querySelector('.list-action-btn.delete');
+                if (deleteBtn) {
+                    const observationCreatorId = localStorage.getItem(`obs_${obsId}_creator`);
+                    if (observationCreatorId && observationCreatorId === currentUserId) {
+                        deleteBtn.style.display = 'inline-block';
+                    } else {
+                        deleteBtn.style.display = 'none';
+                    }
+                }
+            });
+        }
+        
+        function showObservationDetail(obsId) {
+            const observation = observations.find(obs => obs.id === obsId);
+            if (!observation) {
+                alert('관찰 데이터를 찾을 수 없습니다.');
+                return;
+            }
+            
+            currentDetailObservation = observation;
+            
+            document.getElementById('detailTitle').textContent = observation.species_name;
+            document.getElementById('detailSpecies').textContent = observation.species_name;
+            document.getElementById('detailDescription').textContent = observation.description || '설명 없음';
+            document.getElementById('detailCreated').textContent = observation.created_at || 'N/A';
+            document.getElementById('detailId').textContent = observation.id;
+            
+            if (observation.latitude && observation.longitude) {
+                document.getElementById('detailLocation').textContent = 
+                    `위도: ${parseFloat(observation.latitude).toFixed(6)}, 경도: ${parseFloat(observation.longitude).toFixed(6)}`;
+            } else {
+                document.getElementById('detailLocation').textContent = '위치 정보 없음';
+            }
+            
+            const detailImage = document.getElementById('detailImage');
+            const detailNoImage = document.getElementById('detailNoImage');
+            
+            if (observation.photo_url) {
+                detailImage.src = observation.photo_url;
+                detailImage.alt = observation.species_name;
+                detailImage.style.display = 'block';
+                detailNoImage.style.display = 'none';
+            } else {
+                detailImage.style.display = 'none';
+                detailNoImage.style.display = 'flex';
+            }
+
+            const detailDeleteBtn = document.getElementById('detailModalDeleteBtn');
+            const observationCreatorId = localStorage.getItem(`obs_${obsId}_creator`);
+            if (observationCreatorId && observationCreatorId === CURRENT_USER_ID) {
+                detailDeleteBtn.style.display = 'inline-block';
+            } else {
+                detailDeleteBtn.style.display = 'none';
+            }
+            
+            document.getElementById('detailModal').style.display = 'flex';
+        }
+        
+        function closeDetailModal() {
+            document.getElementById('detailModal').style.display = 'none';
+            currentDetailObservation = null;
+        }
+        
+        function deleteObservationFromDetail() {
+            if (currentDetailObservation) {
+                deleteObservation(currentDetailObservation.id);
+                closeDetailModal();
+            }
+        }
+        
+        function scrollToCard(obsId) {
+            const card = document.querySelector(`[data-observation-id="${obsId}"]`);
+            if (card) {
+                document.getElementById('contentContainer').style.display = 'block';
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                card.style.background = 'rgba(255, 255, 255, 0.15)';
+                setTimeout(() => card.style.background = '', 2000);
+            }
+        }
+        
+        function deleteObservation(obsId) {
+            const observationCreatorId = localStorage.getItem(`obs_${obsId}_creator`);
+            
+            if (!observationCreatorId || observationCreatorId !== CURRENT_USER_ID) {
+                alert('본인이 작성한 관찰 기록만 삭제할 수 있습니다.');
+                return;
+            }
+            
+            if (confirm('이 관찰 기록을 삭제하시겠습니까?')) {
+                fetch(`/delete_observation/${obsId}`, { method: 'DELETE' })
+                    .then(response => {
+                        if (response.ok) {
+                            localStorage.removeItem(`obs_${obsId}_creator`);
+                            location.reload();
+                        } else {
+                            alert('삭제 중 오류가 발생했습니다.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('오류:', error);
+                        alert('삭제 중 오류가 발생했습니다.');
+                    });
+            }
+        }
+        
+        function filterObservations() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const dateFilter = document.getElementById('dateFilter').value;
+            
+            const cards = document.querySelectorAll('.observation-card');
+            let visibleCardCount = 0;
+            
+            cards.forEach(card => {
+                const species = card.getAttribute('data-species');
+                const date = card.getAttribute('data-date');
+                
+                const matchesSearch = !searchInput || species.includes(searchInput);
+                const matchesDate = !dateFilter || date === dateFilter;
+                
+                if (matchesSearch && matchesDate) {
+                    card.style.display = 'block';
+                    visibleCardCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            const listItems = document.querySelectorAll('.list-item');
+            let visibleListCount = 0;
+            
+            listItems.forEach(item => {
+                const species = item.getAttribute('data-species');
+                const date = item.getAttribute('data-date');
+                
+                const matchesSearch = !searchInput || species.includes(searchInput);
+                const matchesDate = !dateFilter || date === dateFilter;
+                
+                if (matchesSearch && matchesDate) {
+                    item.style.display = 'grid';
+                    visibleListCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            const container = document.getElementById('observationsContainer');
+            const listContainer = document.getElementById('observationsList');
+            let emptyMessage = document.getElementById('filterEmptyMessage');
+            
+            const totalVisible = currentViewMode === 'gallery' ? visibleCardCount : visibleListCount;
+            
+            if (totalVisible === 0 && (searchInput || dateFilter)) {
+                if (!emptyMessage) {
+                    emptyMessage = document.createElement('div');
+                    emptyMessage.id = 'filterEmptyMessage';
+                    emptyMessage.className = 'empty-state';
+                    emptyMessage.innerHTML = `
+                        <h3>🔍 검색 결과가 없습니다</h3>
+                        <p>검색어나 날짜 필터를 조정해보세요.</p>
+                        <button onclick="clearFilters()" class="primary-btn">필터 초기화</button>
+                    `;
+                    if (currentViewMode === 'gallery') {
+                        container.appendChild(emptyMessage);
+                    } else {
+                        listContainer.appendChild(emptyMessage);
+                    }
+                }
+            } else if (emptyMessage) {
+                emptyMessage.remove();
+            }
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('dateFilter').value = '';
+            filterObservations();
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM 로딩 완료, 초기화 시작...');
+            
+            updateUserSpecificDeleteButtons();
+
+            setTimeout(function() {
+                initializeMap();
+            }, 100);
+            
+            document.getElementById('homeBtn').onclick = () => window.location.href = '{{ url_for("home") }}';
+            document.getElementById('addModeBtn').onclick = toggleAddMode;
+            document.getElementById('listModeBtn').onclick = toggleContentView;
+            document.getElementById('mapTypeBtn').onclick = toggleMapType;
+            document.getElementById('centerMapBtn').onclick = () => {
+                if (map) {
+                    map.setView([SCHOOL_CENTER.lat, SCHOOL_CENTER.lng], DEFAULT_ZOOM);
+                }
+            };
+            
+            document.getElementById('addObservationForm').onsubmit = async function(e) {
+                e.preventDefault();
+                
+                if (!selectedPosition) {
+                    alert('지도에서 위치를 먼저 선택해주세요.');
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('species_name', document.getElementById('modalSpeciesName').value);
+                formData.append('description', document.getElementById('modalDescription').value);
+                formData.append('latitude', selectedPosition.lat);
+                formData.append('longitude', selectedPosition.lng);
+                
+                const photoFile = document.getElementById('modalPhoto').files[0];
+                if (photoFile) {
+                    const compressedImage = await compressImage(photoFile);
+                    formData.append('photo', compressedImage, 'compressed_image.jpg');
+                }
+                
+                fetch('/add', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.observation_id) {
+                        localStorage.setItem(`obs_${data.observation_id}_creator`, CURRENT_USER_ID);
+                        closeAddModal();
+                        toggleAddMode();
+                        location.reload();
+                    } else {
+                        alert('관찰 기록 추가 중 오류가 발생했습니다.');
+                    }
+                })
+                .catch(error => {
+                    console.error('오류:', error);
+                    alert('관찰 기록 추가 중 오류가 발생했습니다.');
+                });
+            };
+        });
+    </script>
+</body>
+</html>

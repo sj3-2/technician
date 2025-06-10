@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>V3 Platformer - Retro Edition</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+  html, body, #root {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Prevent scrollbars from appearing */
+  }
+  body {
+    /* Background color will be set by App.tsx based on theme/settings */
+    font-family: 'Press Start 2P', 'VT323', 'Nanum Gothic Coding', 'Courier New', Courier, monospace;
+    cursor: default; /* Ensure default cursor is visible unless an element overrides it */
+  }
+
+  /* CRT Screen Effects Container - Applied conditionally by App.tsx */
+  .crt-screen-effects {
+    position: relative; /* For pseudo-elements and overlays */
+    border-radius: 20px; /* Main curved screen edge */
+    box-shadow: 0 0 0 3px #181818, 0 0 0 7px #050505, inset 0 0 20px 5px rgba(0,0,0,0.6); /* Bezel + inner shadow */
+    /* overflow: hidden; is set in App.tsx style, essential for clipping */
+  }
+
+  /* Scanlines - Applied conditionally via pseudo-element if .crt-screen-effects is active */
+  .crt-screen-effects::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(
+      rgba(20, 20, 30, 0.13) 50%, /* Darker, slightly bluish scanlines */
+      transparent 50%
+    );
+    background-size: 100% 3px; /* Scanline thickness */
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0.7; /* Scanline intensity */
+    border-radius: inherit; /* Inherit border-radius from parent */
+  }
+
+  /* Vignette - Applied conditionally via pseudo-element if .crt-screen-effects is active */
+  .crt-screen-effects::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-shadow: inset 0 0 90px 30px rgba(0,0,0,0.50); /* Softer, wider, stronger vignette */
+    pointer-events: none;
+    z-index: 11;
+    border-radius: inherit; /* Inherit border-radius from parent */
+  }
+
+  /* Flicker Overlay Div - Rendered conditionally by App.tsx */
+  .flicker-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(200, 210, 255, 0.04); /* Very faint bright flicker */
+    opacity: 0;
+    pointer-events: none;
+    z-index: 12; /* Above scanlines and vignette, below UI popups */
+    animation: crtFlickerEffect 19s infinite linear;
+    border-radius: inherit; /* Inherit border-radius from parent */
+  }
+
+  @keyframes crtFlickerEffect {
+    0% { opacity: 0; }
+    0.5% { opacity: 0.6; }
+    0.7% { opacity: 0; }
+    15% { opacity: 0; }
+    15.2% { opacity: 0.4; }
+    15.3% { opacity: 0; }
+    30% { opacity: 0; }
+    30.1% { opacity: 0.7; }
+    30.25% { opacity: 0;}
+    55% { opacity: 0; }
+    55.05% { opacity: 0.5; }
+    55.15% { opacity: 0; }
+    80% { opacity: 0;}
+    80.1% { opacity: 0.3; }
+    80.2% { opacity: 0;}
+    100% { opacity: 0; }
+  }
+
+  /* Styles for scaling the canvas for barrel distortion effect - Applied if themes are on */
+  .scaled-canvas {
+    transform: scale(1.035); 
+    transform-origin: center center;
+    width: 100%; 
+    height: 100%;
+    display: block;
+    image-rendering: pixelated; 
+    /* background-color will be set by GameCanvas.tsx */
+  }
+  .simplified-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    image-rendering: pixelated;
+     /* background-color will be set by GameCanvas.tsx */
+  }
+</style>
+<link rel="stylesheet" href="/index.css">
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react": "https://esm.sh/react@^19.1.0",
+    "uuid": "https://esm.sh/uuid@9.0.1"
+  }
+}
+</script>
+  <script type="module" crossorigin src="/static/game_assets/assets/index-CNPUD6ad.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+</body>
+</html>

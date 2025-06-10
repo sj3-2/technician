@@ -1,0 +1,490 @@
+<!-- templates/home.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title if title else "Technician Club" }}</title>
+    <!-- Load CSS files in order -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home-page.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+</head>
+<body class="modern-body">
+    <div class="overlay"></div>
+    
+    <header class="modern-header">
+        <a href="{{ url_for('home') }}" class="logo">TECHNICIAN</a>
+        <nav class="modern-nav">
+            <a href="{{ url_for('list_observations') }}">관찰 기록</a>
+            <a href="#projects-section">프로젝트</a>
+            <a href="#about-club">소개</a>
+        </nav>
+    </header>
+    
+    <main class="hero-container" id="about-club">
+        <div class="hero-sphere-visual"></div>
+        <div class="hero-content-wrapper">
+            <h1 class="hero-title">
+                <span class="line">MULTI-</span>
+                <span class="line">DISCIPLINARY</span>
+                <span class="line">TECH CLUB</span>
+            </h1>
+            <p class="hero-description">
+                EXPLORING TECHNOLOGY, ECOLOGY, AND DESIGN
+            </p>
+            <div class="cta-container">
+                <a href="{{ url_for('list_observations') }}" class="cta-button">생태 탐구하기</a>
+                <a href="#projects-section" class="secondary-button">프로젝트 보기</a>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>SCROLL</span>
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19M12 19L19 12M12 19L5 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+    </main>
+
+    <section class="projects-section" id="projects-section">
+        <div class="projects-container">
+            <h2 class="projects-main-title">OUR PROJECTS</h2>
+            <p class="projects-description">
+                다양한 분야의 팀이 진행 중인 프로젝트를 알아보세요.
+            </p>
+            
+
+            
+            <!-- Project Carousel Container -->
+            <div class="project-carousel">
+                <div class="project-slides-container">
+                    
+                    <!-- Team 1 Project -->
+                    <div class="project-slide active" id="team1-project">
+                        <div class="project-content">
+                            <h3 class="project-title">3D 멀티플레이어 게임</h3>
+                            <p class="project-description">
+                                팀원들의 3D 제작 경험과 멀티플레이어 게임에 대한 관심을 바탕으로<br>새로운 협동 게임 경험을 만들어갑니다.
+                            </p>
+                            <div class="project-features">
+                                <div class="feature-item">
+                                    <div class="feature-icon">🎮</div>
+                                    <h4>멀티플레이어 시스템</h4>
+                                    <p>솔로 플레이가 아닌 여러 플레이어가 함께 즐길 수 있는 협동 게임 시스템을 구축합니다.</p>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="feature-icon">🎨</div>
+                                    <h4>3D 모델링 및 디자인</h4>
+                                    <p>팀원들의 3D 제작 경험을 활용하여 몰입감 있는 3D 환경과 캐릭터를 제작합니다.</p>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="feature-icon">🤝</div>
+                                    <h4>역할 분담 개발</h4>
+                                    <p>팀원들 각자의 능력에 맞춰 업무를 분배하여 효율적인 개발 프로세스를 구축합니다.</p>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="feature-icon">⚡</div>
+                                    <h4>게임 최적화</h4>
+                                    <p>다양한 플랫폼에서 원활한 멀티플레이어 경험을 위한 성능 최적화를 진행합니다.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team 2 Project -->
+                    <div class="project-slide" id="team2-project">
+                        <div class="project-content">
+                            <h3 class="project-title">AI 윤리 스토리 게임</h3>
+                            <p class="project-description">
+                                급속히 발전하는 AI 기술의 윤리적 문제를 탐구하며,<br>플레이어가 기술 발전의 위험성에 대해 깊이 생각해볼 수 있는 2D 탑다운 스토리 게임입니다.
+                            </p>
+                            <div class="project-features">
+                                <div class="feature-item">
+                                    <div class="feature-icon">🤖</div>
+                                    <h4>AI 윤리 스토리텔링</h4>
+                                    <p>AI 기술이 인간 사회에 끼칠 수 있는 영향과 도덕적 책임에 대해 생각하게 하는 스토리를 구성합니다.</p>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="feature-icon">📝</div>
+                                    <h4>협업 기반 개발</h4>
+                                    <p>팀원들과의 상의와 토론을 통해 게임의 핵심 스토리와 코드를 함께 작성해나갑니다.</p>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="feature-icon">💡</div>
+                                    <h4>상호 학습 시스템</h4>
+                                    <p>서로가 멘토와 멘티가 되어 모르는 부분을 보완하며, 필요시 온라인 자료와 AI를 활용합니다.</p>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="feature-icon">🎯</div>
+                                    <h4>사회적 메시지 전달</h4>
+                                    <p>단순한 게임을 넘어 기술 발전의 이면에 있는 위험성과 책임의식을 함께 고민하게 합니다.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Team 3 Project -->
+                    <div class="project-slide" id="team3-project">
+                        <div class="project-content">
+                            <h3 class="project-title">학교숲 생태 아카이빙</h3>
+                            <p class="project-description">
+                                네이처링에서 영감받아 우리 학교숲만의 특색있는 생태 아카이브를 구축하여,<br>학생들이 쉽게 동식물 정보를 탐구하고 공유할 수 있는 웹사이트입니다.
+                            </p>
+                            <div class="project-features">
+                                <div class="feature-item">
+                                    <div class="feature-icon">🌿</div>
+                                    <h4>생물 정보 기록</h4>
+                                    <p>학생들이 직접 관찰한 학교숲 동식물의 사진과 정보를 체계적으로 기록하고 분류합니다.</p>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="feature-icon">📸</div>
+                                    <h4>사진 기반 아카이빙</h4>
+                                    <p>날짜와 관찰 내용이 포함된 사진을 업로드하여 시각적 생태 데이터베이스를 구축합니다.</p>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="feature-icon">📍</div>
+                                    <h4>위치 기반 생태지도</h4>
+                                    <p>각 생물의 관찰 위치를 지도에 표시하여 학교숲 전체의 생물 분포 현황을 시각화합니다.</p>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="feature-icon">📊</div>
+                                    <h4>교육 연계 시스템</h4>
+                                    <p>축적된 생태 데이터를 교과 수업과 수행평가에 직접 활용하여 학습 효과를 극대화합니다.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team 4 Project -->
+                    <div class="project-slide" id="team4-project">
+                        <div class="project-content">
+                            <h3 class="project-title">4팀 프로젝트 (준비 중)</h3>
+                            <p class="project-description">
+                                4팀의 혁신적인 프로젝트가 곧 공개됩니다!<br>새로운 아이디어와 기술로 준비 중인 프로젝트에 많은 기대 부탁드립니다.
+                            </p>
+                            <div class="project-features">
+                                <div class="feature-item">
+                                    <div class="feature-icon">🛠️</div>
+                                    <h4>혁신적 아이디어</h4>
+                                    <p>새로운 기술과 창의적인 접근 방식을 탐구하고 있습니다.</p>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="feature-icon">🚀</div>
+                                    <h4>미래 지향적 기술</h4>
+                                    <p>차세대 기술을 활용한 프로젝트를 기획하고 있습니다.</p>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="feature-icon">⏳</div>
+                                    <h4>곧 공개 예정</h4>
+                                    <p>자세한 내용은 곧 발표될 예정이니 많은 관심 부탁드립니다.</p>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="feature-icon">💫</div>
+                                    <h4>특별한 프로젝트</h4>
+                                    <p>예상을 뛰어넘는 흥미로운 프로젝트가 개발 중입니다.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <!-- Navigation Arrows -->
+                <button class="carousel-arrow carousel-prev" aria-label="Previous project">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <button class="carousel-arrow carousel-next" aria-label="Next project">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Progress Indicators -->
+            <div class="project-indicators">
+                <span class="indicator active" data-project="0"></span>
+                <span class="indicator" data-project="1"></span>
+                <span class="indicator" data-project="2"></span>
+                <span class="indicator" data-project="3"></span>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section class="features-section" id="features-section">
+        <div class="features-container">
+            <h2 class="features-main-title">DETAILED FEATURES</h2>
+            <p class="features-description">
+                다양한 기능들을 통해 동아리를 더 자세히 알아보세요.
+            </p>
+            
+            <div class="features-grid">
+                <!-- Club Introduction Feature -->
+                <div class="feature-card">
+                    <div class="feature-icon">🏠</div>
+                    <h3 class="feature-title">동아리 소개</h3>
+                    <p class="feature-desc">더 자세한 동아리 소개와 활동 내역을 확인해보세요.</p>
+                    <button class="feature-button" id="club-intro-btn">더 알아보기</button>
+                </div>
+                
+                <!-- Tech Jump Game Feature -->
+                <div class="feature-card">
+                    <div class="feature-icon">🎮</div>
+                    <h3 class="feature-title">Tech Jump Game</h3>
+                    <p class="feature-desc">동아리에서 제작한 플랫폼 점프 게임을 플레이해보세요.</p>
+                    <button class="feature-button" id="tech-jump-btn">게임 하기</button>
+                </div>
+                
+                <!-- Snake Game Feature -->
+                <div class="feature-card">
+                    <div class="feature-icon">🐍</div>
+                    <h3 class="feature-title">스네이크 게임</h3>
+                    <p class="feature-desc">고전적인 스네이크 게임을 현대적으로 재해석한 버전입니다.</p>
+                    <button class="feature-button" id="snake-game-btn">게임 하기</button>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <footer class="modern-footer" id="site-footer">
+        <div class="footer-content">
+            <div class="footer-logo">TECHNICIAN</div>
+            <div class="footer-links">
+                <a href="{{ url_for('home') }}">홈</a>
+                <a href="{{ url_for('list_observations') }}">관찰 기록</a>
+                <a href="#about-club">소개</a>
+                <a href="#projects-section">프로젝트</a>
+            </div>
+            <div class="footer-copyright">
+                © 2025 Technician Club. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Feature Modals -->
+    <!-- Club Introduction Modal -->
+    <div id="club-intro-modal" class="feature-modal">
+        <div class="feature-modal-content">
+            <div class="feature-modal-header">
+                <h3>동아리 소개</h3>
+                <button class="feature-modal-close" data-modal="club-intro">&times;</button>
+            </div>
+            <div class="feature-container">
+                <div class="feature-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading...</p>
+                </div>
+                <iframe class="feature-iframe" style="display: none;"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tech Jump Game Modal -->
+    <div id="tech-jump-modal" class="feature-modal">
+        <div class="feature-modal-content">
+            <div class="feature-modal-header">
+                <h3>Tech Jump Game</h3>
+                <button class="feature-modal-close" data-modal="tech-jump">&times;</button>
+            </div>
+            <div class="feature-container">
+                <div class="feature-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading game...</p>
+                </div>
+                <iframe class="feature-iframe" style="display: none;"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Snake Game Modal -->
+    <div id="snake-game-modal" class="feature-modal">
+        <div class="feature-modal-content">
+            <div class="feature-modal-header">
+                <h3>스네이크 게임</h3>
+                <button class="feature-modal-close" data-modal="snake-game">&times;</button>
+            </div>
+            <div class="feature-container">
+                <div class="feature-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading game...</p>
+                </div>
+                <iframe class="feature-iframe" style="display: none;"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.classList.add('loaded');
+            
+            // Scroll indicator functionality
+            const scrollIndicator = document.querySelector('.scroll-indicator');
+            if (scrollIndicator) {
+                scrollIndicator.addEventListener('click', function() {
+                    const projectsSection = document.querySelector('#projects-section');
+                    if (projectsSection) {
+                        projectsSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            }
+
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId === "{{ url_for('home') }}" && window.location.pathname === "{{ url_for('home') }}") {
+                        const heroSection = document.querySelector('#about-club');
+                        if (heroSection) {
+                            heroSection.scrollIntoView({ behavior: 'smooth' });
+                            return;
+                        }
+                    }
+
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Project Carousel Functionality
+            let currentProject = 0;
+            const projects = document.querySelectorAll('.project-slide');
+            const indicators = document.querySelectorAll('.indicator');
+            const prevButton = document.querySelector('.carousel-prev');
+            const nextButton = document.querySelector('.carousel-next');
+            const slidesContainer = document.querySelector('.project-slides-container');
+
+            function showProject(index) {
+                // Remove active class from all elements
+                projects.forEach(project => project.classList.remove('active'));
+                indicators.forEach(indicator => indicator.classList.remove('active'));
+
+                // Add active class to selected elements
+                projects[index].classList.add('active');
+                indicators[index].classList.add('active');
+
+                // Transform the slides container to show the selected slide
+                const translateX = -index * 25; // Each slide is 25% width, so move by -25% * index
+                slidesContainer.style.transform = `translateX(${translateX}%)`;
+
+                currentProject = index;
+            }
+
+            // Indicator clicks
+            indicators.forEach((indicator, index) => {
+                indicator.addEventListener('click', () => showProject(index));
+            });
+
+            // Arrow navigation
+            prevButton.addEventListener('click', () => {
+                const newIndex = currentProject === 0 ? projects.length - 1 : currentProject - 1;
+                showProject(newIndex);
+            });
+
+            nextButton.addEventListener('click', () => {
+                const newIndex = currentProject === projects.length - 1 ? 0 : currentProject + 1;
+                showProject(newIndex);
+            });
+
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') {
+                    const newIndex = currentProject === 0 ? projects.length - 1 : currentProject - 1;
+                    showProject(newIndex);
+                } else if (e.key === 'ArrowRight') {
+                    const newIndex = currentProject === projects.length - 1 ? 0 : currentProject + 1;
+                    showProject(newIndex);
+                }
+            });
+
+            // Feature Modal Functionality
+            const modalConfig = {
+                'club-intro': {
+                    modal: document.getElementById('club-intro-modal'),
+                    button: document.getElementById('club-intro-btn'),
+                    src: '{{ url_for("static", filename="club_intro_assets/index.html") }}'
+                },
+                'tech-jump': {
+                    modal: document.getElementById('tech-jump-modal'),
+                    button: document.getElementById('tech-jump-btn'),
+                    src: '{{ url_for("static", filename="game_assets/index.html") }}'
+                },
+                'snake-game': {
+                    modal: document.getElementById('snake-game-modal'),
+                    button: document.getElementById('snake-game-btn'),
+                    src: '{{ url_for("static", filename="snake_game_assets/index.html") }}'
+                }
+            };
+
+            // Initialize modal functionality for each feature
+            Object.keys(modalConfig).forEach(key => {
+                const config = modalConfig[key];
+                const iframe = config.modal.querySelector('.feature-iframe');
+                const loading = config.modal.querySelector('.feature-loading');
+                const closeBtn = config.modal.querySelector('.feature-modal-close');
+
+                // Open modal
+                config.button.addEventListener('click', function() {
+                    config.modal.style.display = 'block';
+                    document.body.style.overflow = 'hidden';
+                    
+                    // Show close button initially for 3 seconds
+                    config.modal.classList.add('show-close-button');
+                    setTimeout(() => {
+                        config.modal.classList.remove('show-close-button');
+                    }, 3000);
+                    
+                    // Load content in iframe if not already loaded
+                    if (!iframe.src) {
+                        iframe.src = config.src;
+                        
+                        iframe.onload = function() {
+                            loading.style.display = 'none';
+                            iframe.style.display = 'block';
+                        };
+                    }
+                });
+
+                // Close modal
+                function closeModal() {
+                    config.modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+
+                closeBtn.addEventListener('click', closeModal);
+
+                // Close modal when clicking outside
+                config.modal.addEventListener('click', function(e) {
+                    if (e.target === config.modal) {
+                        closeModal();
+                    }
+                });
+            });
+
+            // Global ESC key handler for all modals
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    Object.keys(modalConfig).forEach(key => {
+                        const modal = modalConfig[key].modal;
+                        if (modal.style.display === 'block') {
+                            modal.style.display = 'none';
+                            document.body.style.overflow = 'auto';
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+
+    <script src="{{ url_for('static', filename='js/home_background.js') }}"></script>
+</body>
+</html>
